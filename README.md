@@ -44,20 +44,6 @@ An AI-powered job description generator that helps create comprehensive and prof
    GOOGLE_API_KEY=your_api_key_here
    ```
 
-## Project Structure
-
-```
-jd_bot/
-├── bot.py              # Main application file
-├── templates/          # HTML templates
-│   └── index.html     # Main chat interface
-├── requirements.txt    # Project dependencies
-├── .env               # Environment variables (create this)
-├── test_api.py        # API testing script
-├── test_bot.py        # Bot testing script
-└── README.md          # Project documentation
-```
-
 ## Usage
 
 1. Activate your virtual environment:
