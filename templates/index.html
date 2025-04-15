@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JD Bot</title>
+    <style>
+        :root {
+            /* Light theme variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --border-color: #dee2e6;
+            --heading-color: #212529;
+            --subheading-color: #495057;
+            --button-bg: #0d6efd;
+            --button-hover: #0b5ed7;
+            --button-text: #ffffff;
+            --job-posting-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #212529;
+            --bg-secondary: #343a40;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --border-color: #495057;
+            --heading-color: #f8f9fa;
+            --subheading-color: #e9ecef;
+            --button-bg: #0d6efd;
+            --button-hover: #0b5ed7;
+            --button-text: #ffffff;
+            --job-posting-bg: #2c3338;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 90%;
+            height: 90vh;
+            margin: 2vh auto;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--heading-color);
+            font-size: 24px;
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .user-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 50px;
+            max-height: 150px;
+        }
+
+        .user-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .send-button {
+            padding: 12px 24px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            min-height: 50px;
+            white-space: nowrap;
+        }
+
+        .send-button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .send-button:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+            margin-bottom: 8px;
+        }
+
+        .message-content {
+            flex-grow: 0;
+            flex-shrink: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            max-width: 70%;
+            width: fit-content;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            width: 100%;
+            display: flex;
+        }
+
+        .bot-message .message-content {
+            border-top-left-radius: 4px;
+            margin-right: auto;
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-message .message-content {
+            background-color: var(--accent-color);
+            color: white;
+            border-top-right-radius: 4px;
+            margin-left: auto;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            width: fit-content;
+            margin-bottom: 10px;
+            align-self: flex-start;
+        }
+
+        .typing-indicator .message-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            width: auto;
+            max-width: none;
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+        }
+
+        .typing-indicator .dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.5s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+
+        /* Job posting styles */
+        .job-posting {
+            background: var(--job-posting-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+
+        .job-content {
+            margin-bottom: 15px;
+        }
+
+        .job-title {
+            color: var(--heading-color);
+            margin-bottom: 1em;
+            font-size: 1.5em;
+        }
+
+        .job-section-header {
+            color: var(--subheading-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-size: 1.2em;
+        }
+
+        .job-paragraph {
+            margin: 0.8em 0;
+            line-height: 1.6;
+        }
+
+        .job-list {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+
+        .job-list li {
+            margin: 0.5em 0;
+            line-height: 1.4;
+        }
+
+        /* Job posting specific styles */
+        .message-content.job-posting {
+            max-width: 85%;
+            width: auto;
+            margin: 10px 0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                height: 95vh;
+                margin: 1vh auto;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .input-container {
+                padding: 12px;
+            }
+
+            .send-button {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to JD Bot</h1>
+        </div>
+        <div class="chat-container" id="chatContainer"></div>
+        <div class="input-container">
+            <textarea
+                id="userInput"
+                class="user-input"
+                placeholder="Type your message... (Press Shift+Enter for new line)"
+                rows="1"
+            ></textarea>
+            <button id="sendButton" class="send-button" disabled>Send</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatContainer = document.getElementById('chatContainer');
+            let isGenerating = false;
+
+            // Create and add the initial greeting message
+            const greetingDiv = document.createElement('div');
+            greetingDiv.className = 'message bot-message';
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = "Hello, I am here to help you create a comprehensive job posting. Please provide details of the job role and the company";
+            greetingDiv.appendChild(messageContent);
+            chatContainer.appendChild(greetingDiv);
+
+            // Function to show/hide typing indicator
+            function toggleTypingIndicator(show) {
+                let typingIndicator = document.getElementById('typingIndicator');
+                
+                // Remove existing typing indicator if it exists
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                if (show) {
+                    // Create new typing indicator
+                    typingIndicator = document.createElement('div');
+                    typingIndicator.id = 'typingIndicator';
+                    typingIndicator.className = 'message bot-message typing-indicator';
+                    typingIndicator.innerHTML = `
+                        <div class="message-content">
+                            <span>Bot is typing</span>
+                            <div class="dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add it to the chat container
+                    chatContainer.appendChild(typingIndicator);
+                    
+                    // Ensure the typing indicator is visible
+                    requestAnimationFrame(() => {
+                        typingIndicator.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    });
+                }
+            }
+
+            // Function to add a message to the chat
+            function addMessage(message, isUser = false, isJobPosting = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                if (isJobPosting) {
+                    contentDiv.innerHTML = message;
+                } else {
+                    contentDiv.textContent = message;
+                }
+                
+                messageDiv.appendChild(contentDiv);
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Function to send message
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                
+                if (message) {
+                    // Add user message to chat
+                    addMessage(message, true);
+                    userInput.value = '';
+                    userInput.style.height = '50px'; // Reset height
+                    toggleSendButton();
+
+                    try {
+                        // Show typing indicator before making the request
+                        toggleTypingIndicator(true);
+
+                        const response = await fetch('/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ message }),
+                        });
+
+                        const data = await response.json();
+                        
+                        // Hide typing indicator after getting response
+                        toggleTypingIndicator(false);
+                        
+                        if (data.error) {
+                            addMessage('Sorry, there was an error: ' + data.error);
+                        } else {
+                            addMessage(data.response, false);
+                            if (data.isJobPosting) {
+                                addMessage(data.job_posting, false, true);
+                            }
+                            if (data.followUp) {
+                                addMessage(data.followUp, false);
+                            }
+                        }
+                    } catch (error) {
+                        // Hide typing indicator in case of error
+                        toggleTypingIndicator(false);
+                        addMessage('Sorry, there was an error connecting to the server.');
+                    }
+                }
+            }
+
+            // Function to adjust textarea height
+            function adjustTextareaHeight() {
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 150) + 'px';
+            }
+
+            // Function to enable/disable send button
+            function toggleSendButton() {
+                sendButton.disabled = userInput.value.trim() === '';
+            }
+
+            // Handle input changes
+            userInput.addEventListener('input', function() {
+                adjustTextareaHeight();
+                toggleSendButton();
+            });
+
+            // Handle key press events
+            userInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) {
+                        sendMessage();
+                    }
+                }
+            });
+
+            // Handle send button click
+            sendButton.addEventListener('click', sendMessage);
+
+            // Initial setup
+            toggleSendButton();
+        });
+    </script>
+</body>
+</html> 
